@@ -1,1 +1,1 @@
-# Interpolating-audio-effect
+# Hybrid Neural Audio Effects
