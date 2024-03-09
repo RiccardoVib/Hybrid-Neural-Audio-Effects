@@ -7,63 +7,11 @@ from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 
 
-def Normalized_AE(y_true, y_pred):
-    return tf.reduce_mean(tf.divide(K.square((y_pred - y_true)), K.square((y_true)) + 0.00001))
-
 def ESR(y_true, y_pred):#auraloss
     return tf.divide(K.mean(K.square(y_pred - y_true)), K.mean(K.square(y_true) + 0.00001))
 
-
-def _RMSE(y_true, y_pred):
-    return K.mean(K.abs(K.mean(K.square(K.abs(y_pred))) - K.mean(K.square(K.abs(y_true)))))
-
 def RMSE(y_true, y_pred):
     return K.mean(K.abs(K.sqrt(K.square(K.abs(y_pred))) - K.sqrt(K.square(K.abs(y_true)))))
-
-def flux(y_true, y_pred, sr):
-
-    #N = y_true.shape[0]
-    y_t = []
-    y_p = []
-    w = 480000
-    for i in range(0, len(y_true)-w, w//4):
-        y_t.append(librosa.onset.onset_strength(y=y_true[i:i+w], sr=sr))
-        y_p.append(librosa.onset.onset_strength(y=y_pred[i:i+w], sr=sr))
-    y_t = np.array(y_t)
-    y_p = np.array(y_p)
-    y_true = y_t/y_t.max()
-    y_pred = y_p/y_p.max()
-
-    return K.mean(tf.abs(y_true - y_pred))
-
-
-
-def First_difference(y_true, y_pred):
-    begin_back = [0 for _ in range(3)]
-    begin_front = [0 for _ in range(3)]
-    begin_front[1] = 1
-
-    y_true = tf.reshape(y_true, [-1])
-    y_pred = tf.reshape(y_pred, [-1])
-
-    Y_true = K.abs(
-        tf.signal.stft(y_true, fft_length=512, frame_length=512, frame_step=512 // 4, pad_end=True))
-    Y_pred = K.abs(
-        tf.signal.stft(y_pred, fft_length=512, frame_length=512, frame_step=512 // 4, pad_end=True))
-
-    shape = Y_true.shape
-    shape[1] -= 1
-
-    slice_front = tf.slice(Y_true, begin_front, shape)
-    slice_back = tf.slice(Y_pred, begin_back, shape)
-    d_t = slice_front - slice_back
-
-    slice_front = tf.slice(Y_pred, begin_front, shape)
-    slice_back = tf.slice(Y_pred, begin_back, shape)
-    d_p = slice_front - slice_back
-
-    return tf.norm((d_t - d_p), ord=1)
-
 
 def MFCC(y_true, y_pred, sr):
     y_true_ = tf.reshape(y_true, [-1])
@@ -111,45 +59,6 @@ def MFCC(y_true, y_pred, sr):
         loss = loss #/ y_true.shape[0]
 
     return loss
-
-class _First_difference_loss(tf.keras.losses.Loss):
-    def __init__(self, m=[32, 128, 256, 512, 1024], name="Diff", **kwargs):
-        super().__init__(name=name, **kwargs)
-        self.m = m
-
-    def call(self, y_true, y_pred):
-
-        begin_back = [0 for _ in range(3)]
-        begin_front = [0 for _ in range(3)]
-        begin_front[1] = 1
-
-        loss = 0
-        for i in range(len(self.m)):
-            Y_true = K.abs(tf.signal.stft(y_true, fft_length=self.m[i], frame_length=self.m[i], frame_step=self.m[i] // 4, pad_end=False))
-            Y_pred = K.abs(tf.signal.stft(y_pred, fft_length=self.m[i], frame_length=self.m[i], frame_step=self.m[i] // 4, pad_end=False))
-
-            shape = Y_true.shape
-            shape[1] -= 1
-
-            slice_front = tf.slice(Y_true, begin_front, shape)
-            slice_back = tf.slice(Y_pred, begin_back, shape)
-            d_t = slice_front - slice_back
-
-            slice_front = tf.slice(Y_pred, begin_front, shape)
-            slice_back = tf.slice(Y_pred, begin_back, shape)
-            d_p = slice_front - slice_back
-
-            loss += tf.norm((d_t - d_p), ord=1)
-
-        return loss
-
-    def get_config(self):
-        config = {
-            'm': self.m
-        }
-        base_config = super().get_config()
-        return {**base_config, **config}
-
     
 def STFT_t(y_true, y_pred):#auraloss multi-STFT
     m = [32, 64, 128]
@@ -208,51 +117,5 @@ def STFT_f(y_true, y_pred):#auraloss multi-STFT
         #log_loss += tf.norm((l_true - l_pred), ord=1) / 600
 
         loss += (tf.norm((Y_true - Y_pred), ord=1) / (tf.norm(Y_true, ord=1) + 0.00001))
-        loss = loss #/ 600
 
     return (loss + log_loss) / len(m)
-
-def RMS(y_true, y_pred):
-    return K.sqrt(tf.reduce_mean(K.square(y_true-y_pred)))
-
-
-def LSD(y_true, y_pred): # spectral distance loss (consolidate view etc)
-    m =512
-
-    Y_true = tf.signal.stft(y_true, fft_length=m, frame_length=m, frame_step=m // 4, pad_end=True)
-    Y_pred = tf.signal.stft(y_pred, fft_length=m, frame_length=m, frame_step=m // 4, pad_end=True)
-    Y_true = K.log(K.abs(Y_true) ** 2 + 1)
-    Y_pred = K.log(K.abs(Y_pred) ** 2 + 1)
-
-    return tf.reduce_mean(K.sqrt(tf.keras.metrics.mean_squared_error(Y_true, Y_pred)), axis=-1)
-
-def Onsets(y_true, y_pred): #new based on onset detection (LP of abs(x))
-    window = 16
-    nyq = 0.5 * 48000
-    normal_cutoff = 5 / nyq
-    f = signal.firwin2(window, [0.0, normal_cutoff, 0.001, 1.0], [1.0, 1.0, 0.0, 0.0])
-    f = tf.constant(f, dtype=tf.float32)
-    y_pred = tf.tensordot(y_pred, f, axes=0)
-    y_true = tf.tensordot(y_true, f, axes=0)
-
-    loss = (y_true - y_pred)
-    return tf.reduce_mean(K.abs(loss))
-
-def SF(y_true, y_pred): #Spectral difference Onset detection paper
-    window = 512
-
-    y_true = tf.reshape(y_true, [-1])
-    y_pred = tf.reshape(y_pred, [-1])
-
-    Y_true = K.abs(tf.signal.stft(y_true, fft_length=512, frame_length=window, frame_step=window, pad_end=True))
-    Y_pred = K.abs(tf.signal.stft(y_pred, fft_length=512, frame_length=window, frame_step=window, pad_end=True))
-
-    loss = 0.
-    for n in range(1, tf.shape(Y_true)[0]):
-        sf_true = tf.reduce_sum(tf.divide(K.abs(Y_true[n]) - K.abs(Y_true[n - 1] + K.abs(K.abs(Y_true[n]) - K.abs(Y_true[n - 1]))), 2) ** 2)
-        sf_pred = tf.reduce_sum(tf.divide(K.abs(Y_pred[n]) - K.abs(Y_pred[n - 1] + K.abs(K.abs(Y_pred[n]) - K.abs(Y_pred[n - 1]))), 2) ** 2)
-        sf_true = tf.cast(sf_true, tf.float32)
-        sf_pred = tf.cast(sf_pred, tf.float32)
-        loss += (sf_true - sf_pred)
-    return tf.reduce_mean(loss)
-
