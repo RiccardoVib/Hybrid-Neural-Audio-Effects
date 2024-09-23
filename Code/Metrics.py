@@ -1,19 +1,21 @@
-import librosa
 import tensorflow as tf
 from scipy import signal
 import numpy as np
 import os
-from tensorflow.keras import backend as K
-import matplotlib.pyplot as plt
-
-
-def ESR(y_true, y_pred):#auraloss
-    return tf.divide(K.mean(K.square(y_pred - y_true)), K.mean(K.square(y_true) + 0.00001))
+from keras import backend as K
+import librosa
 
 def RMSE(y_true, y_pred):
+    """ root-mean-squared error """
     return K.mean(K.abs(K.sqrt(K.square(K.abs(y_pred))) - K.sqrt(K.square(K.abs(y_true)))))
 
+def ESR(y_true, y_pred):
+    """ error to signal ratio """
+    return tf.divide(K.mean(K.square(y_pred - y_true)), K.mean(K.square(y_true) + 0.00001))
+
+
 def MFCC(y_true, y_pred, sr):
+    """ Mel-frequency cepstrum coefficients error """
     y_true_ = tf.reshape(y_true, [-1])
     y_pred_ = tf.reshape(y_pred, [-1])
     m = [1024]
@@ -33,9 +35,10 @@ def MFCC(y_true, y_pred, sr):
 
         # Warp the linear scale spectrograms into the mel-scale.
         num_spectrogram_bins = Y_true.shape[-1]
-        lower_edge_hertz, upper_edge_hertz, num_mel_bins = 30.0, sr//2, 80
+        lower_edge_hertz, upper_edge_hertz, num_mel_bins = 80.0, 20000.0, 80
         linear_to_mel_weight_matrix = tf.signal.linear_to_mel_weight_matrix(num_mel_bins, num_spectrogram_bins, sr, lower_edge_hertz,
         upper_edge_hertz)
+
 
         mel_spectrograms_pred = tf.tensordot(Y_pred, linear_to_mel_weight_matrix, 1)
         mel_spectrograms_pred.set_shape(Y_pred.shape[:-1].concatenate(linear_to_mel_weight_matrix.shape[-1:]))
@@ -56,11 +59,11 @@ def MFCC(y_true, y_pred, sr):
         mfccs_tar = tf.signal.mfccs_from_log_mel_spectrograms(log_mel_spectrograms_tar)
 
         loss += tf.norm((mfccs_tar - mfccs_pred), ord=1) / (tf.norm(mfccs_tar, ord=1))
-        loss = loss #/ y_true.shape[0]
 
     return loss
-    
-def STFT_t(y_true, y_pred):#auraloss multi-STFT
+
+def STFT_t(y_true, y_pred):
+    """ multi-STFT error """
     m = [32, 64, 128]
     y_true_ = tf.reshape(y_true, [-1])
     y_pred_ = tf.reshape(y_pred, [-1])
@@ -80,42 +83,6 @@ def STFT_t(y_true, y_pred):#auraloss multi-STFT
         Y_true = tf.pow(K.abs(Y_true), 2)
         Y_pred = tf.pow(K.abs(Y_pred), 2)
 
-        #l_true = K.log(Y_true + 1)
-        #l_pred = K.log(Y_pred + 1)
-
-        #log_loss += tf.norm((l_true - l_pred), ord=1) / 600
-
         loss += tf.norm((Y_true - Y_pred), ord=1) / (tf.norm(Y_true, ord=1) + 0.00001)
-        loss = loss #/ 600#K.means?
-
-    return (loss + log_loss) / len(m)
-
-def STFT_f(y_true, y_pred):#auraloss multi-STFT
-    m = [256, 512, 1024]
-    y_true_ = tf.reshape(y_true, [-1])
-    y_pred_ = tf.reshape(y_pred, [-1])
-
-    loss = 0
-    log_loss = 0
-    for i in range(len(m)):
-
-        pad_amount = int(m[i] // 2)  # Symmetric even padding like librosa.
-        #pads = [0 for _ in range(len(y_true.shape))]
-        pads = [[pad_amount, pad_amount]]
-        y_true = tf.pad(y_true_, pads, mode='CONSTANT', constant_values=0)
-        y_pred = tf.pad(y_pred_, pads, mode='CONSTANT', constant_values=0)
-
-        Y_true = K.abs(tf.signal.stft(y_true, fft_length=m[i], frame_length=m[i], frame_step=m[i] // 4, pad_end=False))
-        Y_pred = K.abs(tf.signal.stft(y_pred, fft_length=m[i], frame_length=m[i], frame_step=m[i] // 4, pad_end=False))
-
-        Y_true = tf.pow(K.abs(Y_true), 2)
-        Y_pred = tf.pow(K.abs(Y_pred), 2)
-
-        #l_true = K.log(Y_true + 1)
-        #l_pred = K.log(Y_pred + 1)
-
-        #log_loss += tf.norm((l_true - l_pred), ord=1) / 600
-
-        loss += (tf.norm((Y_true - Y_pred), ord=1) / (tf.norm(Y_true, ord=1) + 0.00001))
 
     return (loss + log_loss) / len(m)
