@@ -3,12 +3,18 @@ import math
 import numpy as np
 
 class GLU(tf.keras.layers.Layer):
+    """
+    Gated Linear Unit
+        :param in_size: input size
+        :param bias: if use bias 
+        :param dim: dimension for the split
+    """
     def __init__(self, in_size, bias=True, dim=-1, **kwargs):
         super(GLU, self).__init__(**kwargs)
         self.bias = bias
         self.dim = dim
         self.in_size = in_size
-        self.dense = tf.keras.layers.Dense(self.in_size*2, use_bias=bias)
+        self.dense = tf.keras.layers.Dense(self.in_size * 2, use_bias=bias)
 
     def call(self, x):
         x = self.dense(x)
