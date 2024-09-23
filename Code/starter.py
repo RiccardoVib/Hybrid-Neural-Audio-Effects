@@ -10,7 +10,7 @@ data_dir = '../../Files/'
 
 epochs = 200
 units = 8 # number of model's units
-b_size = 600 # batch size
+batch_size = 600 # batch size
 lr = 3e-4 # initial learning rate
 
 
@@ -21,7 +21,7 @@ cond = 1
 train(data_dir=data_dir,
       save_folder=model+dataset+'TCP',
       dataset=dataset,
-      b_size=b_size,
+      batch_size=batch_size,
       learning_rate=lr,
       cond=cond,
       units=units,
