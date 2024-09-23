@@ -87,7 +87,7 @@ def train(**kwargs):
                                        cond_size=D, batch_size=b_size)
          
         # the number of total training steps
-        training_steps = train_gen.training_steps*epochs
+        training_steps = train_gen.training_steps
         # define the Adam optimizer with the initial learning rate, training steps
         opt = tf.keras.optimizers.Adam(learning_rate=MyLRScheduler(learning_rate, training_steps), clipnorm=1)   
         
