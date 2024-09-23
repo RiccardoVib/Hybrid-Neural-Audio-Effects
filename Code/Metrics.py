@@ -1,9 +1,5 @@
 import tensorflow as tf
-from scipy import signal
-import numpy as np
-import os
 from keras import backend as K
-import librosa
 
 def RMSE(y_true, y_pred):
     """ root-mean-squared error """

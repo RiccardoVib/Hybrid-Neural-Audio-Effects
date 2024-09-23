@@ -1,11 +1,11 @@
 import os
 import tensorflow as tf
 from UtilsForTrainings import plotTraining, writeResults, checkpoints, predictWaves, MyLRScheduler
-from Models import create_model_ED, create_model
+from Models import create_model_ED
 from DatasetsClass import DataGeneratorPickles
 import numpy as np
 import random
-from Metrics import ESR, STFT_t, STFT_f, RMSE, flux
+from Metrics import ESR, STFT_t, RMSE
 import sys
 import time
 
@@ -39,6 +39,7 @@ def train(**kwargs):
 
     # start the timer for all the training process
     start = time.time()
+
     # set all the seed in case reproducibility is desired
     #np.random.seed(422)
     #tf.random.set_seed(422)
@@ -49,7 +50,6 @@ def train(**kwargs):
     gpu = tf.config.experimental.list_physical_devices('GPU')
     if len(gpu) != 0:
         tf.config.experimental.set_memory_growth(gpu[0], True)
-        # tf.config.experimental.set_virtual_device_configuration(gpu, [tf.config.experimental.VirtualDeviceConfiguration(memory_limit=18000)])
 
     fs = 44100
 
@@ -58,11 +58,11 @@ def train(**kwargs):
     w = e + d
 
      # create the model
-    model = create_model_ED(cond_dim=D, input_dim=w, units=units, b_size=b_size)
+    model = create_model_ED(D=D, T=w, units=units, batch_size=batch_size)
 
     # define callbacks: where to store the weights
     callbacks = []
-    ckpt_callback, ckpt_callback_latest, ckpt_dir, ckpt_dir_latest = checkpoints(model_save_dir, save_folder, 0.)
+    ckpt_callback, ckpt_callback_latest, ckpt_dir, ckpt_dir_latest = checkpoints(model_save_dir, save_folder)
 
 
 
@@ -82,9 +82,9 @@ def train(**kwargs):
         
         # create the DataGenerator object to retrieve the data
         train_gen = DataGeneratorPickles(data_dir, dataset + '_train.pickle', input_size=w,
-                                         cond_size=D, batch_size=b_size)
+                                         cond_size=D, batch_size=batch_size)
         val_gen = DataGeneratorPickles(data_dir, dataset + '_val.pickle', input_size=w,
-                                       cond_size=D, batch_size=b_size)
+                                       cond_size=D, batch_size=batch_size)
          
         # the number of total training steps
         training_steps = train_gen.training_steps
@@ -142,7 +142,7 @@ def train(**kwargs):
         
     # compute test loss
     test_gen = DataGeneratorPickles(data_dir, dataset + '_val.pickle', input_size=w,
-                                    cond_size=D, batch_size=b_size)
+                                    cond_size=D, batch_size=batch_size)
     model.reset_states()
     predictions = model.predict(test_gen, verbose=0)[:, 0]
 
@@ -155,11 +155,9 @@ def train(**kwargs):
     esr = ESR(test_gen.y[w:len(predictions) + w], predictions)
     rmse = RMSE(test_gen.y[w:len(predictions) + w], predictions)
     sftf_t = STFT_t(test_gen.y[w:len(predictions) + w], predictions)
-    sftf_f = STFT_f(test_gen.y[w:len(predictions) + w], predictions)
-    spectral_flux = flux(test_gen.y[w:len(predictions) + w], predictions, fs)
 
-    results_ = {'mse': mse, 'mae': mae, 'esr': esr, 'rmse': rmse, 'spectral_flux': spectral_flux, 'sftf_t': sftf_t,
-                'sftf_f': sftf_f}
+
+    results_ = {'mse': mse, 'mae': mae, 'esr': esr, 'rmse': rmse, 'sftf_t': sftf_t}
     
     # writhe and store the metrics values
     with open(os.path.normpath('/'.join([model_save_dir, save_folder, str(model_name) + 'results.txt'])), 'w') as f:
