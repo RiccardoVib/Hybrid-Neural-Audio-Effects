@@ -78,9 +78,9 @@ class DataGeneratorPickles(Sequence):
         if self.cond_size != 0:
             c = 0
             for t in range(indices[0], indices[-1] + 1, 1):
-                X[c, :] = (np.array(self.x[t - self.window: t]).T)
-                Y[c, :] = (np.array(self.y[t]).T)
-                Z[c, :] = (np.array(self.z[t]).T)
+                X[c, :] = (np.array(self.x[t - self.window: t]))
+                Y[c, :] = (np.array(self.y[t]))
+                Z[c, :] = (np.array(self.z[t]))
                 c += 1
             X = X.reshape(-1, self.window, 1)
          
@@ -89,8 +89,8 @@ class DataGeneratorPickles(Sequence):
         else:
             c = 0
             for t in range(indices[0], indices[-1] + 1, 1):
-                X[c, :] = (np.array(self.x[t - self.window: t]).T)
-                Y[c, :] = (np.array(self.y[t]).T)
+                X[c, :] = (np.array(self.x[t - self.window: t]))
+                Y[c, :] = (np.array(self.y[t]))
                 c += 1
 
             X = X.reshape(-1, self.window, 1)         
