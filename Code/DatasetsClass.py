@@ -25,8 +25,8 @@ class DataGeneratorPickles(Sequence):
         self.y = np.array(Z['y'][:, :], dtype=np.float32)
        
         # windowing the signal to avoid misalignments
-        self.x = self.x * np.array(tukey(self.x.shape[1], alpha=0.005), dtype=np.float32).reshape(1, -1)
-        self.y = self.y * np.array(tukey(self.x.shape[1], alpha=0.005), dtype=np.float32).reshape(1, -1)
+        self.x = self.x * np.array(tukey(self.x.shape[1], alpha=0.000005), dtype=np.float32).reshape(1, -1)
+        self.y = self.y * np.array(tukey(self.x.shape[1], alpha=0.000005), dtype=np.float32).reshape(1, -1)
 
         self.batch_size = batch_size
         
