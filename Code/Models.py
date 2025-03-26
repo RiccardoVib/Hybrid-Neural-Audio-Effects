@@ -22,7 +22,7 @@ def create_model_ED(D, T, units, batch_size=600):
         decoder_inputs, initial_state=[h, c])
 
     if D != 0:
-        cond_inputs = Input(shape=(D), name='conditioning_input')
+        cond_inputs = Input(shape=(D,), name='conditioning_input')
         film = Dense(units * 2, batch_input_shape=(batch_size, units))(cond_inputs)
         g, b = tf.split(film, 2, axis=-1)
         decoder_outputs = Multiply()([decoder_outputs, g])
