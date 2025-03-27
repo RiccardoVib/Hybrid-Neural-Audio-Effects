@@ -78,17 +78,17 @@ class DataGeneratorPickles(Sequence):
         t = indices[0]
         if self.cond_size != 0:
 
-            X = (np.array(self.x[t - self.window: t]))
-            Y = (np.array(self.y[t]))
-            Z = (np.array(self.z[t]))
+            X = (np.array(self.x[:, t - self.window: t]))
+            Y = (np.array(self.y[:, t]))
+            Z = (np.array(self.z[:, t]))
 
             X = X.reshape(-1, self.window, 1)
 
             return [Z, X[:, :-1, :], X[:, -1, :].reshape(-1, 1, 1)], Y
         else:
 
-            X = (np.array(self.x[t - self.window: t]))
-            Y = (np.array(self.y[t]))
+            X = (np.array(self.x[:, t - self.window: t]))
+            Y = (np.array(self.y[:, t]))
             X = X.reshape(-1, self.window, 1)         
         
             return [X[:, :-1, :], X[:, -1, :].reshape(-1, 1, 1)], Y
