@@ -54,11 +54,11 @@ class DataGeneratorPickles(Sequence):
 
     def on_epoch_end(self):
         # create/reset the vector containing the indices of the batches
-        self.indices = np.arange(self.x.shape[1] + self.window - 1)
+        self.indices = np.arange(self.x.shape[1] + self.window)
 
     def __len__(self):
         # compute the needed number of iterations before conclude one epoch
-        return int((self.x.shape[1])) - 1
+        return int((self.x.shape[1]))-1-self.window
 
     def __call__(self):
         for i in range(self.__len__()):
