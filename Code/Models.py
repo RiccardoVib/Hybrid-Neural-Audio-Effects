@@ -1,6 +1,6 @@
 import tensorflow as tf
 from tensorflow.keras.layers import Input, Dense, GRU, Add, LSTM, Multiply
-
+from tensorflow.keras.layers import Lambda
 from Layers import GLU
 
 
@@ -23,8 +23,8 @@ def create_model_ED(D, T, units, batch_size=600):
 
     if D != 0:
         cond_inputs = Input(shape=(D,), name='conditioning_input')
-        film = Dense(units * 2, batch_input_shape=(batch_size, units))(cond_inputs)
-        g, b = tf.split(film, 2, axis=-1)
+        film = Dense(units * 2)(cond_inputs)
+        g, b = Lambda(lambda x: tf.split(x, 2, axis=-1))(film)
         decoder_outputs = Multiply()([decoder_outputs, g])
         decoder_outputs = Add()([decoder_outputs, b])
         decoder_outputs = GLU(in_size=units)(decoder_outputs)
