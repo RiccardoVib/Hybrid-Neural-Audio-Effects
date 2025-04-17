@@ -21,8 +21,8 @@ class DataGeneratorPickles(Sequence):
         Z = pickle.load(file_data)
 
         self.cond_size = cond_size
-        self.x = np.array(Z['x'][:, :], dtype=np.float32)
-        self.y = np.array(Z['y'][:, :], dtype=np.float32)
+        self.x = np.array(Z['x'][:, :4800], dtype=np.float32)
+        self.y = np.array(Z['y'][:, :4800], dtype=np.float32)
        
         # windowing the signal to avoid misalignments
         self.x = self.x * np.array(tukey(self.x.shape[1], alpha=0.000005), dtype=np.float32).reshape(1, -1)
@@ -41,11 +41,14 @@ class DataGeneratorPickles(Sequence):
 
         if self.cond_size != 0:
             self.z = np.array(Z['z'], dtype=np.float32)
+            self.z = self.z.reshape(self.z.shape[0], 1)
             #self.z = np.array([0.5, 0.0, 1.0], dtype=np.float32)
-            #self.z = np.repeat(self.z, rep, axis=-1)
+            self.z = np.repeat(self.z, rep, axis=-1)
+            self.z = self.z.reshape(-1)
+            self.z = self.z[:lim].reshape(self.batch_size, -1)
+
         del Z
         self.window = input_size
-        self.z = self.z.reshape(self.batch_size, -1, self.z.shape[0])
 
         # how many iterations are needed
         self.training_steps = (lim // self.batch_size)
@@ -79,12 +82,12 @@ class DataGeneratorPickles(Sequence):
         if self.cond_size != 0:
 
             X = (np.array(self.x[:, t - self.window: t]))
-            Y = (np.array(self.y[:, t]))
-            Z = (np.array(self.z[:, t]))
+            Y = (np.array(self.y[:, t-1:t]))
+            Z = (np.array(self.z[:, t-1:t]))
 
             X = X.reshape(-1, self.window, 1)
 
-            return [Z, X[:, :-1, :], X[:, -1, :].reshape(-1, 1, 1)], Y
+            return [Z, X[:, :-1, :], X[:, -1:, :]], Y
         else:
 
             X = (np.array(self.x[:, t - self.window: t]))

@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import pickle
 from scipy.io import wavfile
 
-
 class MyLRScheduler(tf.keras.optimizers.schedules.LearningRateSchedule):
     """
     Define the learning schedule

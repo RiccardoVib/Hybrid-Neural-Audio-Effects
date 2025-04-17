@@ -8,6 +8,7 @@ import random
 from Metrics import ESR, STFT_t, RMSE
 import sys
 import time
+import matplotlib.pyplot as plt
 
 
 def train(**kwargs):
@@ -57,17 +58,16 @@ def train(**kwargs):
     d = 32
     w = e + d
 
-     # create the model
-    model = create_model_ED(D=D, T=w, units=units, batch_size=batch_size)
-
     # define callbacks: where to store the weights
     callbacks = []
     ckpt_callback, ckpt_callback_latest, ckpt_dir, ckpt_dir_latest = checkpoints(model_save_dir, save_folder)
 
-
-
     # if inference is True, it jump directly to the inference section without train the model
     if not inference:
+
+        # create the model
+        model = create_model_ED(D=D, T=w, units=units, batch_size=batch_size)
+
         callbacks += [ckpt_callback, ckpt_callback_latest]
         
         # load the weights of the last epoch, if any
@@ -131,6 +131,8 @@ def train(**kwargs):
     sys.stdout.write("\n")
     sys.stdout.flush()
 
+    model = create_model_ED(D=D, T=w, units=units, batch_size=1)
+
     # load the best weights of the model
     best = tf.train.latest_checkpoint(ckpt_dir)
     if best is not None:
@@ -139,16 +141,17 @@ def train(**kwargs):
     else:
         # if no weights are found, there is something wrong
         print("Something is wrong.")
-        
+
     # compute test loss
     test_gen = DataGeneratorPickles(data_dir, dataset + '_val.pickle', input_size=w,
-                                    cond_size=D, batch_size=batch_size)
+                                    cond_size=D, batch_size=1)
     model.reset_states()
-    predictions = model.predict(test_gen, verbose=0)[:, 0]
+    predictions = model.predict(test_gen, verbose=0).flatten()
+    y = test_gen.y.reshape(-1)[w:len(predictions) + w]
+    x = test_gen.x.reshape(-1)[w:len(predictions) + w]
 
     # plot and render the output audio file, together with the input and target
-    predictWaves(predictions, test_gen.x[w:len(predictions) + w], test_gen.y[w:len(predictions) + w], model_save_dir,
-                 save_folder, fs, '0')
+    predictWaves(predictions, x, y, model_save_dir, save_folder, fs, '0')
 
     mse = tf.keras.metrics.mean_squared_error(test_gen.y[w:len(predictions) + w], predictions)
     mae = tf.keras.metrics.mean_absolute_error(test_gen.y[w:len(predictions) + w], predictions)
@@ -159,7 +162,7 @@ def train(**kwargs):
 
     results_ = {'mse': mse, 'mae': mae, 'esr': esr, 'rmse': rmse, 'sftf_t': sftf_t}
     
-    # writhe and store the metrics values
+    # write and store the metrics values
     with open(os.path.normpath('/'.join([model_save_dir, save_folder, str(model_name) + 'results.txt'])), 'w') as f:
         for key, value in results_.items():
             print('\n', key, '  : ', value, file=f)
