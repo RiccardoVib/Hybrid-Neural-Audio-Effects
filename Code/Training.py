@@ -145,8 +145,28 @@ def train(**kwargs):
     # compute test loss
     test_gen = DataGeneratorPickles(data_dir, dataset + '_val.pickle', input_size=w,
                                     cond_size=D, batch_size=1)
+
+    # audio = test_gen.y
+    # padded_audio = np.concatenate([np.zeros(w - 1), audio[0]])
+    # 
+    # outputs = []
+    # cond_inputs = np.array([[0.]])
+    # end = 44100 // 2
+    # step = 1
+    # for i in range(0, end, step):
+    #     encoder_input = padded_audio[i:i + w - 1].reshape(1, w - 1, 1)  # Shape (1, T-1, 1)
+    #     decoder_input = padded_audio[i + w - 1].reshape(1, 1, 1)  # Start with a single step input
+    # 
+    #     # Run the model and store the output
+    #     output = model([cond_inputs, encoder_input, decoder_input])
+    #     outputs.append(output)
+
+    # Concatenate the outputs to form the final audio
+    predictions = np.concatenate(outputs, axis=1).flatten()
+
+
     model.reset_states()
-    predictions = model.predict(test_gen, verbose=0).flatten()
+    #predictions = model.predict(test_gen, verbose=0).flatten()
     y = test_gen.y.reshape(-1)[w:len(predictions) + w]
     x = test_gen.x.reshape(-1)[w:len(predictions) + w]
 

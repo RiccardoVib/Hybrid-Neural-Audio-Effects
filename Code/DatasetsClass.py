@@ -4,7 +4,7 @@ import numpy as np
 from tensorflow.keras.utils import Sequence
 from scipy.signal.windows import tukey
 import matplotlib.pyplot as plt
-
+import librosa
 
 class DataGeneratorPickles(Sequence):
 
@@ -23,7 +23,11 @@ class DataGeneratorPickles(Sequence):
         self.cond_size = cond_size
         self.x = np.array(Z['x'][:, :], dtype=np.float32)
         self.y = np.array(Z['y'][:, :], dtype=np.float32)
-       
+
+        # file_path = data_dir + '/Chime08_trim.wav'
+        # audio, sr = librosa.load(file_path, sr=None)  # Load the audio file with its native sample rate
+        # self.x = audio.reshape(1,-1)
+        # self.y = audio.reshape(1,-1)
         # windowing the signal to avoid misalignments
         self.x = self.x * np.array(tukey(self.x.shape[1], alpha=0.000005), dtype=np.float32).reshape(1, -1)
         self.y = self.y * np.array(tukey(self.x.shape[1], alpha=0.000005), dtype=np.float32).reshape(1, -1)
