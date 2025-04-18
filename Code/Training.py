@@ -153,13 +153,11 @@ def train(**kwargs):
     # plot and render the output audio file, together with the input and target
     predictWaves(predictions, x, y, model_save_dir, save_folder, fs, '0')
 
-    mse = tf.keras.metrics.mean_squared_error(test_gen.y[w:len(predictions) + w], predictions)
-    mae = tf.keras.metrics.mean_absolute_error(test_gen.y[w:len(predictions) + w], predictions)
-    esr = ESR(test_gen.y[w:len(predictions) + w], predictions)
-    rmse = RMSE(test_gen.y[w:len(predictions) + w], predictions)
-    sftf_t = STFT_t(test_gen.y[w:len(predictions) + w], predictions)
-
-
+    mse = tf.keras.metrics.mean_squared_error(y, predictions)
+    mae = tf.keras.metrics.mean_absolute_error(y, predictions)
+    esr = ESR(y, predictions)
+    rmse = RMSE(y, predictions)
+    sftf_t = STFT_t(y, predictions)
     results_ = {'mse': mse, 'mae': mae, 'esr': esr, 'rmse': rmse, 'sftf_t': sftf_t}
     
     # write and store the metrics values
