@@ -17,11 +17,10 @@ model = 'ED'
 model_save_dir = '../Weights'
 
 dataset = 'CL1BTapePreamp' # dataset to use
-dataset = 'TapePreamp' # dataset to use
-cond = 1
+cond = 3
 train(data_dir=data_dir,
       model_save_dir=model_save_dir,
-      save_folder=model+dataset+'',
+      save_folder=model+dataset+'CTP3',
       dataset=dataset,
       batch_size=batch_size,
       learning_rate=lr,
