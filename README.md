@@ -49,7 +49,7 @@ Example training case:
 ```
 cd ./code/
 
-python starter.py --datasets TapePreamp --cond 3 --epochs 500 
+python starter.py --datasets TapePreamp --cond 1 --epochs 500 
 ```
 
 To only run inference on an existing pre-trained model, use the "only_inference". In this case, ensure you have the existing model and dataset (to use for inference) both in their respective directories with corresponding names.
