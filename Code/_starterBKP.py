@@ -14,10 +14,11 @@ batch_size = 600 # batch size
 lr = 3e-4 # initial learning rate
 
 model = 'ED'
-model_save_dir = '../Weights'
+model_save_dir = '../weights'
+#[CL1BTapePreamp, TapePreamp, CL1BTape, CL1BPreamp]
 
 dataset = 'CL1BTapePreamp' # dataset to use
-dataset = 'TapePreamp' # dataset to use
+dataset = 'CL1BTape' # dataset to use
 cond = 1
 train(data_dir=data_dir,
       model_save_dir=model_save_dir,

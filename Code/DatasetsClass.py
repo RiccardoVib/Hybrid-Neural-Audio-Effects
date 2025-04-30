@@ -24,10 +24,6 @@ class DataGeneratorPickles(Sequence):
         self.x = np.array(Z['x'][:, :], dtype=np.float32)
         self.y = np.array(Z['y'][:, :], dtype=np.float32)
 
-        # file_path = data_dir + '/Chime08_trim.wav'
-        # audio, sr = librosa.load(file_path, sr=None)  # Load the audio file with its native sample rate
-        # self.x = audio.reshape(1,-1)
-        # self.y = audio.reshape(1,-1)
         # windowing the signal to avoid misalignments
         self.x = self.x * np.array(tukey(self.x.shape[1], alpha=0.000005), dtype=np.float32).reshape(1, -1)
         self.y = self.y * np.array(tukey(self.x.shape[1], alpha=0.000005), dtype=np.float32).reshape(1, -1)
@@ -78,11 +74,6 @@ class DataGeneratorPickles(Sequence):
                 self.on_epoch_end()
 
     def __getitem__(self, idx):
-        # Initializing input, target, and conditioning batches
-
-        # X = np.empty((self.batch_size, self.window))
-        # Y = np.empty((self.batch_size, 1))
-        # Z = np.empty((self.batch_size, self.cond_size))
         
         # get the indices of the requested batch
         indices = self.indices[idx:(idx + 1)] + self.window
