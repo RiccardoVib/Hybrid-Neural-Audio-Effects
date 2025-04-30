@@ -18,7 +18,7 @@ model_save_dir = '../weights'
 #[CL1BTapePreamp, TapePreamp, CL1BTape, CL1BPreamp]
 
 dataset = 'CL1BTapePreamp' # dataset to use
-dataset = 'CL1BTape' # dataset to use
+dataset = 'TapePreamp' # dataset to use
 cond = 1
 train(data_dir=data_dir,
       model_save_dir=model_save_dir,

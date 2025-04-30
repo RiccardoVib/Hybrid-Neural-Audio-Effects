@@ -150,8 +150,8 @@ def train(**kwargs):
     if best is not None:
         print("Restored weights from {}".format(ckpt_dir))
         #model.load_weights(best).expect_partial()
-        #model.save_weights(ckpt_dir + '/best.weights.h5')  # Save in a supported format
-        model.load_weights(ckpt_dir + '/best.weights.h5')
+        #model.save_weights(ckpt_dir + '/weights.h5')  # Save in a supported format
+        model.load_weights(ckpt_dir + '/weights.h5')
         print("Loading the saved weights.")
 
     else:
