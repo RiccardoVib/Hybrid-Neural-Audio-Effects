@@ -76,7 +76,7 @@ def train(**kwargs):
             print("Restored weights from {}".format(ckpt_dir_latest))
             #model.load_weights(last)
             #model.save_weights(ckpt_dir_latest + '/last.weights.h5')  # Save in a supported format
-            model.load_weights(ckpt_dir_latest + '/last.weights.h5')
+            model.load_weights(ckpt_dir_latest + '/weights.h5')
         else:
             # if no weights are found,the weights are random generated
             print("Initializing random weights.")
@@ -139,12 +139,12 @@ def train(**kwargs):
     # if last is not None:
     #     print("Restored weights from {}".format(ckpt_dir_latest))
     #     model.load_weights(last)
-    #     model.save_weights(ckpt_dir_latest + '/last.weights.h5')  # Save in a supported format
-    #     model.load_weights(ckpt_dir_latest + '/last.weights.h5')
+    #     model.save_weights(ckpt_dir_latest + '/weights.h5')  # Save in a supported format
+    #     #model.load_weights(ckpt_dir_latest + '/weights.h5')
     # else:
     #     # if no weights are found,the weights are random generated
     #     print("Initializing random weights.")
-        
+    #
     # load the best weights of the model
     best = tf.train.latest_checkpoint(ckpt_dir)
     if best is not None:

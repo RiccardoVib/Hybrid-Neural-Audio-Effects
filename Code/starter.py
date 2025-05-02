@@ -31,6 +31,10 @@ def parse_args():
 
 
 def start_train(args):
+    if args.dataset == 'CL1BTapePreamp':
+        cond = 3
+    else:
+        cond = 1
 
     print("######### Preparing for training/inference #########")
     print("\n")
@@ -39,7 +43,7 @@ def start_train(args):
           save_folder=f'ED_{args.dataset}_{args.units}',
           dataset=args.datasets,
           epochs=args.epochs,
-          cond=args.cond,
+          cond=cond,
           batch_size=args.batch_size,
           mini_batch_size=args.mini_batch_size,
           units=args.units,

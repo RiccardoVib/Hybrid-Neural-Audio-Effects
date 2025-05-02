@@ -41,7 +41,6 @@ class DataGeneratorPickles(Sequence):
 
         if self.cond_size == 1:
             self.z = np.array(Z['z'], dtype=np.float32)
-            self.z = np.array([0., 0.], dtype=np.float32)
             self.z = self.z.reshape(self.z.shape[0], 1)
             self.z = np.repeat(self.z, rep, axis=-1)
             self.z = self.z.reshape(-1)
