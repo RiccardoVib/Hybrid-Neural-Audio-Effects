@@ -38,7 +38,6 @@ Available options:
 * --data_dir - Folder directory in which the datasets are stored [str] (default="./datasets")
 * --datasets - The names of the datasets to use. [ [str] ] (default=[" "] )
 * --epochs - Number of training epochs. [int] (defaut=60)
-* --cond - The number of conditioning considered [int] (default=1)
 * --batch_size - The size of each batch [int] (default=8 )
 * --units = The hidden layer size (amount of units) of the network. [ [int] ] (default=8)
 * --mini_batch_size - The mini batch size [int] (default=2048)
@@ -47,18 +46,31 @@ Available options:
 
 Example training case: 
 ```
-cd ./code/
+cd ./Code/
 
-python starter.py --datasets TapePreamp --cond 1 --epochs 500 
+python starter.py --datasets TapePreamp --epochs 500 
 ```
 
 To only run inference on an existing pre-trained model, use the "only_inference". In this case, ensure you have the existing model and dataset (to use for inference) both in their respective directories with corresponding names.
 
 Example inference case:
 ```
-cd ./code/
+cd ./Code/
 python starter.py --datasets TapePreamp --only_inference True
 ```
+
+The repo include three pre-trained model having only one parameter:
+* TapePreamp: 0 emulate the tape recorder, 1 the pre-amp
+* CL1BTape: 0 emulate the optical compressor, 1 the tape recorder
+* CL1BPreamp: 0 emulate the optical compressor, 1 the pre-amp
+
+and one pre-trained model having 3 parameters:
+* CL1BTapePreamp: each parameter indicate how much of a particular effect is to be added.
+
+Example
+[1., 0., 0.] only the optical compressor is acting
+[0., 1., 0.] only the tape recorder is acting
+[0., 0., 1.] only the pre-amp is acting
 
 
 # VST Download
