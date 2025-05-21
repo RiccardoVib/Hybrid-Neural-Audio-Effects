@@ -158,6 +158,9 @@ def train(**kwargs):
         # if no weights are found, there is something wrong
         print("Something is wrong.")
 
+    # model.save(model_save_dir+'/'+dataset)
+    # model.save(model_save_dir+'/'+dataset + '.keras')
+    # model.save(model_save_dir+'/'+dataset + '.h5')
     # compute test loss
     test_gen = DataGeneratorPickles(data_dir, dataset + '_val.pickle', input_size=w,
                                     cond_size=D, batch_size=1)
