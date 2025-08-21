@@ -6,6 +6,19 @@ This repository contains all the necessary utilities to use our architectures. F
 
 Visit our [companion page with audio examples](https://riccardovib.github.io/Hybrid-Neural-Audio-Effects_pages/)
 
+### Folder Structure
+
+```
+./
+├── Code
+└── Weights
+    ├── EDCL1BPreamp
+    ├── EDCL1BTape
+    ├── EDCL1BTapePreamp
+    └── EDTapePreamp
+
+```
+
 ### Contents
 
 1. [Datasets](#datasets)
@@ -76,3 +89,18 @@ Example
 # VST Download
 
 Coming soon...
+
+# Bibtex
+
+If you use the code included in this repository or any part of it, please acknowledge 
+its authors by adding a reference to these publications:
+
+```
+@inproceedings{simionato2025modeling,
+  title={Hybrid Neural Audio Effects},
+  author={Simionato, Riccardo and Fasciani, Stefano},
+  booktitle = {Proceedings of the International Conference on Sound and Music Computing (SMC24)},
+  year = {2024},
+  address = {Porto, Portugal},
+}
+```
