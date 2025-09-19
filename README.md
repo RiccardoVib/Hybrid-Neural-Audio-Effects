@@ -88,7 +88,7 @@ Example
 
 # VST Download
 
-Coming soon...
+[VST](https://github.com/RiccardoVib/NeuralModelsVST/tree/main/Hybrid)
 
 # Bibtex
 
